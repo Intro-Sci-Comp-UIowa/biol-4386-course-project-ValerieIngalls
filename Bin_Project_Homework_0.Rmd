@@ -1,0 +1,28 @@
+---
+title: 'Intro to Scientific Computing Project: Homework 0'
+author: "Valerie Ingalls"
+date: "2023-01-30"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include = FALSE}
+library(knitr)
+library(tinytex)
+```
+
+
+# Research Project Idea - Zinc and Copper Levels in Individuals with Tinnitus
+
+**Note:** This project is a continuation of a research project that I worked on last semester. I have already gathered and analyzed the data, with results mostly complete. The main remaining work is to generate figures.  
+
+Tinnitus, often defined as the phantom perception of sound and most commonly experienced as ringing in the ears, affects roughly 15% of the United States population. Severity can range from mildly annoying to debilitating. The exact biological mechanisms of tinnitus are unknown and currently, we lack any universally effective treatments for the disorder. As such, further research into methods of prevention and treatment as well as the mechanisms of the disorder is essential. Current understanding suggests that tinnitus may be connected to damage within the cochlea.  
+
+Zinc and copper are known to prevent free radical damage in the cochlea over time by neutralizing the superoxide radical. Some research has been done examining deficiency of these metals in individuals with tinnitus. Past studies have been largely underpowered, and while some have shown promising results suggesting lower levels of serum metals in individuals with tinnitus, statistical significance is often lacking. Further, many of the same studies attempted to use zinc supplementation as a method of treating tinnitus to similarly mixed results. The purpose of this project is to analyze a large survey sample in order to more definitively establish the relationship between tinnitus and zinc and copper levels.  
+
+Data for this project were gathered from the National Health and Nutrition Examination Survey (NHANES), a biannual survey that uses complex design and weighting in order to create a sample that is fully representative of the United States population. Utilizing this survey design, we are able to examine the relative levels of serum zinc and copper in individuals with tinnitus and without, as well as the rate of deficiency, in a manner that cleanly generalizes to the larger population.  
+
+In order to visualize these data, I would like to create a pair of histograms on the same plots (one plot for zinc, one for copper) in order to create a visual comparison of the distributions of serum metal levels in individuals with and without tinnitus. I have not found any studies on this subject that visualize the data in this way, but the following is an example from the R Graph Gallery that illustrates the type of figure that I would like to make ([source](https://r-graph-gallery.com/2-two-histograms-with-melt-colors.html)). My goal is to have a pair of these. While the statistical data analysis is largely complete and I have skills and experience making figures in R, it will definitely take me some time and effort to implement the complex survey design with the figures.
+
+![](histo_exmaple.png)
