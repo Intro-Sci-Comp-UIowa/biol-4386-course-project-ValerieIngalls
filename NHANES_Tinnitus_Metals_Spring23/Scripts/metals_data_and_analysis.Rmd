@@ -15,21 +15,23 @@ library(bestNormalize)
 library(ggplot2)
 ```
 
-```{r}
-demo11 <- read.xport("NHANES Data - Raw/11DEMO.XPT")
-auq11 <- read.xport("NHANES Data - Raw/11AUQ.XPT")
-zinc11 <- read.xport("NHANES Data - Raw/11CUSEZN.XPT")
-aux11 <- read.xport("NHANES Data - Raw/11AUX.XPT")
-fast11 <- read.xport("NHANES Data - Raw/11FASTQX.XPT")
 
-demo15 <- read.xport("NHANES Data - Raw/15DEMO.XPT")
-auq15 <- read.xport("NHANES Data - Raw/15AUQ.XPT")
-zinc15 <- read.xport("NHANES Data - Raw/15CUSEZN_I.XPT")
-aux15 <- read.xport("NHANES Data - Raw/15AUX.XPT")
-fast15 <- read.xport("NHANES Data - Raw/15FASTQX.XPT")
+```{r import}
+demo11 <- read.xport("../Data/RAW_data/DEMO_G.XPT")
+auq11 <- read.xport("../Data/RAW_data/AUQ_G.XPT")
+zinc11 <- read.xport("../Data/RAW_data/CUSEZN_G.XPT")
+aux11 <- read.xport("../Data/RAW_data/AUX_G.XPT")
+fast11 <- read.xport("../Data/RAW_data/FASTQX_G.XPT")
+
+demo15 <- read.xport("../Data/RAW_data/DEMO_I.XPT")
+auq15 <- read.xport("../Data/RAW_data/AUQ_I.XPT")
+zinc15 <- read.xport("../Data/RAW_data/CUSEZN_I.XPT")
+aux15 <- read.xport("../Data/RAW_data/AUX_I.XPT")
+fast15 <- read.xport("../Data/RAW_data/FASTQX_I.XPT")
 ```
 
-```{r}
+
+```{r join}
 zinc_data15 <- full_join(demo15, auq15) %>%
   full_join(zinc15) %>%
   full_join(aux15) %>%
@@ -44,7 +46,7 @@ zinc_all <- full_join(zinc_data11, zinc_data15)
 ```
 
 
-```{r}
+```{r cleaning}
 zinc_trimmed <- zinc_all %>%
   select(c(SEQN, SDDSRVYR, RIAGENDR, RIDAGEYR, RIDRETH3, WTINT2YR, WTMEC2YR, SDMVPSU, SDMVSTRA, AUQ191, AUQ100, AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, AUQ370, AUQ300, WTSA2YR, LBXSCU, LBXSSE, LBXSZN, LBDSCUSI, LBDSSESI, LBDSZNSI, PHDSESN))
 
@@ -104,7 +106,7 @@ zinc_refactor <- zinc_trimmed %>%
 ```
 
 
-```{r}
+```{r subset}
 zinc_SPSS <- zinc_refactor %>%
     replace(is.na(.), "")
 
@@ -117,13 +119,13 @@ zinc_subset <- zinc_refactor %>%
 
 ```
 
-```{r}
+```{r designs}
 cutoff_design <- svydesign(data = zinc_subset, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE)
 
 tinnitus_design <- svydesign(data = zinc_subset, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE)
 ```
 
-```{r}
+```{r chisq}
 sextest <- chisq.test(zinc_subset$sex, zinc_subset$tinnitus_any)
 sextest$observed
 sextest
@@ -138,15 +140,7 @@ ethtest
 ```
 
 
-```{r}
-zinc_age <- svyciprop()
-```
-
-
-
-
-
-```{r}
+```{r regression}
 svyttest(zinc_deficiency~tinnitus_any, design = tinnitus_design)
 
 #tinnitus_design %>%
@@ -204,7 +198,7 @@ summary(multilin4)
 ```
 
 
-```{r}
+```{r histograms}
 subset(tinnitus_design, tinnitus_any == 0) %>%
   svyhist(formula = ~`zinc_ug/dL`, design = ., breaks = 300)
 
@@ -213,7 +207,7 @@ subset(tinnitus_design, tinnitus_any == 1) %>%
 ```
 
 
-```{r}
+```{r mean-comparison}
 subset(tinnitus_design, tinnitus_any == 0) %>%
   svymean(~zinc_deficiency, .)
 
@@ -231,13 +225,8 @@ subset(tinnitus_design, tinnitus_any == 0) %>%
 
 subset(tinnitus_design, tinnitus_any == 1) %>%
   svymean(~selenium_deficiency, .)
-
-
-
-
-
-
 ```
+
 
 ```{r}
 deficient_tbl <- tibble("tinnitus" = c(9.807, 0.621, 0.145), "no tinnitus" = c(15.664, 0.604, 0.374))
@@ -247,18 +236,7 @@ ggplot(data = deficient_tbl, mapping = aes(x =  ))
 
 
 
-
-
-
-
-
-
-
-
-
-
 ```{r}
-
 zincresid <- rstandard(multilin2)
 shapiro.test(zincresid)
 
@@ -352,27 +330,6 @@ svyhist(~`zinc_ug/dL`, design = tinnitus_design, breaks = 50)
 
 dummy variables regression
 remove profound
-
-
-
-
-
-
-```{r}
-write.csv(zinc_SPSS, "zinc_tinnitus_SPSS.csv")
-```
-
-
-
-```{r}
-View(zinc_subset)
-```
-
-```{r
-```
-
-
-
 
 
 
