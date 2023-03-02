@@ -1,0 +1,189 @@
+---
+title: "Zinc"
+author: "Valerie Ingalls"
+date: "2022-10-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(foreign)
+library(survey)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(bestNormalize)
+library(ggplot2)
+```
+
+
+```{r import}
+df <- read.csv("../Data/processed_metal_data.csv")
+```
+
+```{r designs}
+tinnitus_design <- svydesign(data = df, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE)
+```
+
+```{r chisq}
+sextest <- chisq.test(df$sex, df$tinnitus_any)
+sextest$observed
+sextest
+
+agetest <- chisq.test(df$age_group, df$tinnitus_any)
+agetest$observed
+agetest
+
+ethtest <- chisq.test(df$ethnicity, df$tinnitus_any)
+ethtest$observed
+ethtest
+```
+
+
+```{r regression}
+svyttest(zinc_deficiency~tinnitus_any, design = tinnitus_design)
+
+#tinnitus_design %>%
+#  subset(tinnitus_any == 1) %>%
+#  svymean(~`zinc_ug/dL`, .)
+#tinnitus_design %>%
+#  subset(tinnitus_any != 1) %>%
+#  svymean(~`zinc_ug/dL`, .)
+#tinnitus_design %>%
+#  subset(tinnitus_any == 1) %>%
+#  svymean(~zinc_deficiency, .)
+#tinnitus_design %>%
+#  subset(tinnitus_any != 1) %>%
+#  svymean(~zinc_deficiency, .)
+
+
+logit1 <- svyglm(formula = zinc_deficiency ~ tinnitus_any + sex + ethnicity + speech_in_noise + non_work_noise + firearms + work_noise + age_group, family = quasibinomial, design = tinnitus_design, na.action = na.omit)
+
+logit2 <- svyglm(formula = zinc_deficiency ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, family = quasibinomial, design = tinnitus_design, na.action = na.omit)
+
+summary(logit1, correlation = TRUE)
+anova(logit1)
+
+summary(logit2, correlation = TRUE)
+
+exp(cbind(OR = coef(logit2), confint.default(logit2)))
+
+logit3 <- svyglm(formula = copper_deficiency ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, family = quasibinomial, design = tinnitus_design, na.action = na.omit)
+
+summary(logit3)
+exp(cbind(OR = coef(logit3), confint.default(logit3)))
+
+
+
+#svyttest(`zinc_ug/dL`~tinnitus_any, design = tinnitus_design, alternative = "two.sided", paired = TRUE, conf.level = .95)
+
+multilin2 <- svyglm(formula = `zinc_ug/dL` ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, design = tinnitus_design, na.action = na.omit)
+
+summary(multilin2, correlation = TRUE)
+
+multilin3 <- svyglm(formula = `copper_ug/dL` ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, design = tinnitus_design, na.action = na.omit)
+
+summary(multilin3)
+
+
+```
+
+
+```{r histograms}
+subset(tinnitus_design, tinnitus_any == 0) %>%
+  svyhist(formula = ~`zinc_ug/dL`, design = ., breaks = 300)
+
+subset(tinnitus_design, tinnitus_any == 1) %>%
+  svyhist(formula = ~`zinc_ug/dL`, design = ., breaks = 300)
+```
+
+
+```{r mean-comparison}
+subset(tinnitus_design, tinnitus_any == 0) %>%
+  svymean(~zinc_deficiency, .)
+
+subset(tinnitus_design, tinnitus_any == 1) %>%
+  svymean(~zinc_deficiency, .)
+
+subset(tinnitus_design, tinnitus_any == 0) %>%
+  svymean(~copper_deficiency, .)
+
+subset(tinnitus_design, tinnitus_any == 1) %>%
+  svymean(~copper_deficiency, .)
+
+```
+
+
+```{r}
+deficient_tbl <- tibble("tinnitus" = c(9.807, 0.621, 0.145), "no tinnitus" = c(15.664, 0.604, 0.374))
+
+ggplot(data = deficient_tbl, mapping = aes(x =  ))
+```
+
+
+```{r}
+zincresid <- rstandard(multilin2)
+shapiro.test(zincresid)
+
+hist(zincresid, breaks = 100)
+hist(zinc_norm$chosen_transform$x.t, breaks = 100)
+
+zinc_norm <-bestNormalize(zinc_refactor$`zinc_ug/dL`)
+
+zinc_chosen <- zinc_norm$chosen_transform$x.t
+
+zinc_norm_df <- zinc_refactor %>%
+  mutate(
+    "zinc_norm" = `zinc_chosen`
+  )
+
+zinc_norm_subset_df <- zinc_norm_df %>%
+  filter(!is.na(zinc_norm))
+
+
+
+copper_norm <-bestNormalize(zinc_refactor$`copper_ug/dL`)
+
+copper_chosen <- copper_norm$chosen_transform$x.t
+
+copper_norm_df <- zinc_refactor %>%
+  mutate(
+    "copper_norm" = `copper_chosen`
+  )
+
+copper_norm_subset_df <- copper_norm_df %>%
+  filter(!is.na(copper_norm))
+
+
+norm_data <- full_join(zinc_norm_subset_df, copper_norm_subset_df)
+
+normed_design <- svydesign(data = norm_data, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE) %>%
+  subset(!is.na(tinnitus_any))
+
+
+normed_lin_zinc <- svyglm(formula = zinc_norm ~ tinnitus_any + sex + ethnicity + age_yrs, design = normed_design, na.action = na.omit)
+
+normed_lin_cu <- svyglm(formula = copper_norm ~ tinnitus_any + sex + ethnicity + age_yrs, design = normed_design, na.action = na.omit)
+
+summary(normed_lin_zinc)
+summary(normed_lin_cu)
+
+
+norm_zinc_resid <- rstandard(normed_lin_zinc)
+shapiro.test(norm_zinc_resid)
+hist(norm_zinc_resid, breaks = 100)
+
+
+cu_no_outlier <-  normed_design%>%
+  subset(copper_norm > -15)
+
+cu_lin_no_outlier <- svyglm(formula = copper_norm ~ tinnitus_any + sex + ethnicity + age_yrs, design = cu_no_outlier, na.action = na.omit)
+  
+norm_cu_resid <- rstandard(cu_lin_no_outlier)
+shapiro.test(norm_cu_resid)
+hist(norm_cu_resid, breaks = 100)
+
+```
+
+```{r}
+svyhist(~`zinc_ug/dL`, design = tinnitus_design, breaks = 50)
+```
