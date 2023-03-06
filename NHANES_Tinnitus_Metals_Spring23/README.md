@@ -2,26 +2,29 @@
 
 ## Reference 
 
-This is an original study conducted by myself, Valerie Ingalls, BA,  as well as Dr. Ishan Bhatt, PhD, member and PI, respectively, of the Audiogenomics Lab, part of the 
+This is an original study conducted by myself, Valerie Ingalls,  as well as Dr. Ishan Bhatt, PhD, member and PI, respectively, of the Audiogenomics Lab, part of the 
 Department of Communication Sciences and Disorders at the University of Iowa. Data for the study are taken from the National Health and Nutrion Examination Survey (NHANES), 
 which has its data published publically available at their [website](https://www.cdc.gov/nchs/nhanes/index.htm).
 
 
 ## Introduction
 
-Tinnitus, described as the phantom perception of sound and commonly experienced as ringing in the ears, affects an estimated 10% of US adults each year. While noise exposure 
-is known to cause tinnitus, the exact biological origins of the disorder yet remain unclear. One leading theory is that tinnitus is connected to damage within the cochlea, the 
-primary structure of the inner ear. Zinc and copper are known to prevent free radical damage in the cochlea over time by neutralizing the superoxide radical. Because of this 
-protective role, it is theorized that these molecules may have a protective effect agaisnt tinnitus and that their deficiency may result in tinnitus susceptibility. Previous 
-studies examining this hypothesis have shown some promising results, but have largely been underpowered and lacking statistical significance. Therefore, it is necessary to 
-conduct a large-scale investigation to determine whether there are actually differences in serum levels of these molecules among tinnitus patients as compared to the 
-no-tinnitus population.
+Tinnitus, or the phantom perception of sound in abscence of external stimulus, which is commonly but not exclusively experienced as ringing in the ears, affects an estimated 10% of US adults each year. This proportion increases with age, with 
+nearly 5 million total individuals in their 50's experiencing tinnitus during a given year. This makes it incredibly common as a disorder. 
+A significant portion of individuals with tinnitus report that it presents at least a moderate problem in their life, and over 1 million U.S. adults report it is a big problem. As a common disorder with a notable negative impact on those who have it, the importance of treatment for tinnitus is clear. 
 
-## Figure
+While noise exposure is known to be the causal trigger for the manifestation of tinnitus, the exact biological origins of the disorder yet remain unclear. Moreover, it is not yet fully clear why, when two individuals are exposed to the same loud noise, it is possible that only one of them develops tinnitus in response. 
+One leading theory is that tinnitus is connected to damage within the cochlea, the primary structure of the inner ear that is responsible for transduction of sound into the electrical signal that is passed to the brain. 
+Zinc and copper are known to prevent free radical damage in the cochlea over time by neutralizing the superoxide radical. It is theorized that these molecules may have a protective effect against noise-induced cochlear damage, and therefore tinnitus. 
+It follows that their deficiency may result in tinnitus susceptibility. Previous studies examining this hypothesis have showed some promising results, but have largely been underpowered and lacking statistical significance.
+Further, several studies that attempted to use zinc for treating tinnitus neglected to examine pre-existing differences in zinc levels and rates of deficiency between individuals with and without tinnitus.
+With this project, we hold the goal of completing a large-scale analysis of differences in the levels of zinc and copper in individuals with and without tinnitus, as well as the rates of deficiency, in order to determine whether there are population-level variations that could explain tinnitus susceptibility. 
+
+### Figure
 
 As this is an original study, I do not have a figure to replicate. Additionally, the previously mentioned studies did not use the type of visualization that I am planning to 
 use, because their sample sizes were too small for a histogram to be an effective visualization. As such, I have pulled a somewhat similar example and will describe the 
-differences that I plan for my final version.
+differences that I plan for my final version. 
 
 ![An example histogram](Analyses/Figures/histo_example.png)
 
