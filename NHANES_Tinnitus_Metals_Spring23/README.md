@@ -1,4 +1,4 @@
-# Examining Serum Levels of Zinc and Copper in Individuals with Chronic Tinnitus
+# Examining Serum Levels of Zinc and Copper in Individuals with Chronic Problematic Tinnitus
 
 ## Reference 
 
@@ -9,16 +9,24 @@ which has its data published publically available at their [website](https://www
 
 ## Introduction
 
-Tinnitus, or the phantom perception of sound in abscence of external stimulus, which is commonly but not exclusively experienced as ringing in the ears, affects an estimated 10% of US adults each year. This proportion increases with age, with 
-nearly 5 million total individuals in their 50's experiencing tinnitus during a given year. This makes it incredibly common as a disorder. 
-A significant portion of individuals with tinnitus report that it presents at least a moderate problem in their life, and over 1 million U.S. adults report it is a big problem. As a common disorder with a notable negative impact on those who have it, the importance of treatment for tinnitus is clear. 
+Tinnitus, or the phantom perception of sound in abscence of external stimulus, which is commonly but not exclusively experienced as ringing in the ears, affects an estimated 
+10% of US adults each year. This high prevalance makes it a very common disorder. The rate  increases with age, with nearly 5 million total individuals in their 50's 
+experiencing tinnitus during a given year. There are numerous differences between tinnitus phenotypes that individuals experience. Tinnitus may manifest only in the short 
+term, which is  known as acute tinnitus, or it may be experienced for multiple years, which is known as chronic tinnitus. Even among chronic tinnitus patients, some people 
+perceive tinnitus consistently, while for others it is only present or discernible intermittently. A  significant portion of individuals with tinnitus report that it presents 
+at least a moderate problem in their life, and over 1 million U.S. adults report it is a big problem. As a common disorder with a notable negative impact on those who have it, 
+the importance  of treatment for tinnitus is clear. Those with chronic, problematic tinnitus represent the population of greatest clinical interest. 
 
-While noise exposure is known to be the causal trigger for the manifestation of tinnitus, the exact biological origins of the disorder yet remain unclear. Moreover, it is not yet fully clear why, when two individuals are exposed to the same loud noise, it is possible that only one of them develops tinnitus in response. 
-One leading theory is that tinnitus is connected to damage within the cochlea, the primary structure of the inner ear that is responsible for transduction of sound into the electrical signal that is passed to the brain. 
-Zinc and copper are known to prevent free radical damage in the cochlea over time by neutralizing the superoxide radical. It is theorized that these molecules may have a protective effect against noise-induced cochlear damage, and therefore tinnitus. 
-It follows that their deficiency may result in tinnitus susceptibility. Previous studies examining this hypothesis have showed some promising results, but have largely been underpowered and lacking statistical significance.
-Further, several studies that attempted to use zinc for treating tinnitus neglected to examine pre-existing differences in zinc levels and rates of deficiency between individuals with and without tinnitus.
-With this project, we hold the goal of completing a large-scale analysis of differences in the levels of zinc and copper in individuals with and without tinnitus, as well as the rates of deficiency, in order to determine whether there are population-level variations that could explain tinnitus susceptibility. 
+
+While noise exposure is known to be the causal trigger for the manifestation of tinnitus, the exact biological origins of the disorder yet remain unclear. Moreover, it is not 
+yet fully clear why, when two individuals are exposed to the same loud noise, it is possible that only one of them develops tinnitus in response. One leading theory is that  
+tinnitus is connected to damage within the cochlea, the primary structure of the inner ear that is responsible for transduction of sound into the electrical signal that is  
+passed to the brain. Zinc and copper are known to prevent free radical damage in the cochlea over time by neutralizing the superoxide radical. It is theorized that these 
+molecules may have a protective effect against noise-induced cochlear damage, and therefore  tinnitus. It follows that their deficiency may result in tinnitus susceptibility. 
+Previous studies examining this hypothesis have showed some promising results, but have largely been underpowered and lacking statistical significance. Further, several 
+studies that attempted to use zinc for treating tinnitus neglected to examine pre-existing differences in zinc levels and rates of deficiency between individuals with and 
+without tinnitus. With this project, we hold the goal of completing a  large-scale analysis of differences in the levels of zinc and copper in individuals with and without 
+tinnitus, as well as the rates of deficiency, in order to determine whether there are population-level variations that could explain tinnitus susceptibility. 
 
 ### Figure
 
@@ -28,15 +36,19 @@ differences that I plan for my final version.
 
 ![An example histogram](Analyses/Figures/histo_example.png)
 
-As you can see from this example, the goal is to create a plot with two histogram distributions on the same axis. On the x-axis will be level of serum copper (or zinc), while 
-the y-axis will be density (preferable to a count y-axis because generalized sample size is in the millions). One of the distributions will be for the no chronic tinnitus 
-group, while the other distribution will be for individuals with chronic tinnitus. I will also add a vertical line at the clinical cutoff value for deficiency in those metals. 
-In this way, I will visualize the difference in zinc and/or copper in those with chronic tinnitus as opposed to those without chronic tinnitus, while simultaneously showing 
-the proportion of individuals in each population who have a clinically significant deficiency in that metal.
+As you can see from this example, the goal is to create a plot with multiple histogram distributions on the same axis. I will be making two figures with the same underlying 
+design, the only difference being whether the figure is for copper or zinc. Due to  differences in normative serum levels of copper and zinc, it is likely impractical to 
+measure both metals on the same figure. On the x-axis for each figure will be level of serum copper (or zinc), while the y-axis will be density (preferable to a count y-axis 
+in  this case because our generalized sample size is in the millions). One of the distributions will be for the no tinnitus control group, one distribution will be for 
+individuals with chronic problematic tinnitus, while a third distribution will be for individuals  with other tinnitus phenotypes (either acute or unproblematic). I will also 
+add a vertical line at the clinical cutoff value for deficiency  in those metals. In this way, I will visualize the difference in zinc and/or copper in those with chronic 
+problematic tinnitus compared to the control groups of those with no tinnitus and those with clinically non-significant tinnitus, while simultaneously showing the proportion 
+of individuals in each population who have a deficiency in that metal. 
 
 ## Materials and Methods 
 
-This is a large-sample epidemiological study using data from the NHANES, a nationally representation health survey that makes use of both questionnaires and physical 
+This is a large-sample epidemiological study using data from the National Health and Nutrition Examination Survery (NHANES). , a nationally representation health survey that 
+makes use of both questionnaires and physical 
 examination to gather a robust set of health data. The NHANES also utilizes a complex stratified survey design in order to increase its representativeness. To summarize that 
 survey design: 
 

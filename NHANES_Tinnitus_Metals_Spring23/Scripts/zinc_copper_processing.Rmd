@@ -48,7 +48,7 @@ zinc_all <- full_join(zinc_data11, zinc_data15)
 
 ```{r cleaning}
 zinc_trimmed <- zinc_all %>%
-  select(c(SEQN, SDDSRVYR, RIAGENDR, RIDAGEYR, RIDRETH3, WTINT2YR, WTMEC2YR, SDMVPSU, SDMVSTRA, AUQ191, AUQ100, AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, AUQ370, AUQ300, WTSA2YR, LBXSCU, LBXSZN, PHDSESN))
+  select(c(SEQN, SDDSRVYR, RIAGENDR, RIDAGEYR, RIDRETH3, WTINT2YR, WTMEC2YR, SDMVPSU, SDMVSTRA, AUQ191, AUQ280, AUQ250, AUQ260, AUQ100, AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, AUQ370, AUQ300, WTSA2YR, LBXSCU, LBXSZN, PHDSESN))
 
 zinc_refactor <- zinc_trimmed %>%
   rename("cycle" = "SDDSRVYR",
@@ -61,6 +61,9 @@ zinc_refactor <- zinc_trimmed %>%
          "psu" = "SDMVPSU",
          "stratum" = "SDMVSTRA",
          "tinnitus_any" = AUQ191,
+         "tinnitus_severity" = AUQ280,
+         "tinnitus_duration" = AUQ250,
+         "noise_only" = AUQ260,
          "speech_in_noise" = AUQ100,
          "non_work_noise" = AUQ370,
          "firearms" = AUQ300,
@@ -84,8 +87,11 @@ zinc_refactor <- zinc_trimmed %>%
          "high_pta_right" = (AUXU3KR + AUXU4KR + AUXU6KR + AUXU8KR) / 4,
          "high_pta_left" = (AUXU3KL + AUXU4KL + AUXU6KL + AUXU8KL) / 4,
          "combined_subsample_weight" = subsample_weight/2,
-         across(c(tinnitus_any, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 7)),
-         across(c(tinnitus_any, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 9)),
+         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 7)),
+         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 9)),
+         "problematic" = if_else(tinnitus_severity == 1, 0, 1),
+         "acute_chronic" = if_else(tinnitus_duration >= 3, 1, 0),
+         "tinnitus_type" = 
          "cycle" = if_else(cycle == 7, "2011", "2015"),
          "zinc_cutoff" = if_else(age_yrs >= 10, 
                                      if_else(sex == 1, if_else(session == 1, 74, 61), 
