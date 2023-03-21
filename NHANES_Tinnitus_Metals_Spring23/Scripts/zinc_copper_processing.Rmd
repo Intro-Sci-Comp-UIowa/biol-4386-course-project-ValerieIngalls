@@ -15,6 +15,7 @@ library(bestNormalize)
 library(ggplot2)
 ```
 
+First, we have to read all of our data files into R. There are 5 different files for each cycle.
 
 ```{r import}
 demo11 <- read.xport("../Data/RAW_data/DEMO_G.XPT")
@@ -30,6 +31,7 @@ aux15 <- read.xport("../Data/RAW_data/AUX_I.XPT")
 fast15 <- read.xport("../Data/RAW_data/FASTQX_I.XPT")
 ```
 
+We're going to process this data all together, so we can combine our 10 dataframes into 1 here at the start. Sheets don't have matching columns within cycles so we use full join to get all of our data. Final join could be whatever variety.
 
 ```{r join}
 zinc_data15 <- full_join(demo15, auq15) %>%
@@ -45,11 +47,23 @@ zinc_data11 <- full_join(demo11, auq11) %>%
 zinc_all <- full_join(zinc_data11, zinc_data15)
 ```
 
+First step in wrangling is to select only the columns that we need for the ensuing steps. This will makes a few later steps run a bit faster than if we had all columns remaining.
 
-```{r cleaning}
+```{r select}
 zinc_trimmed <- zinc_all %>%
   select(c(SEQN, SDDSRVYR, RIAGENDR, RIDAGEYR, RIDRETH3, WTINT2YR, WTMEC2YR, SDMVPSU, SDMVSTRA, AUQ191, AUQ280, AUQ250, AUQ260, AUQ100, AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, AUQ370, AUQ300, WTSA2YR, LBXSCU, LBXSZN, PHDSESN))
+```
 
+Here we 
+1. rename our variables to be legible 
+2. refactor existing variables 
+3. compute some new variables 
+4. remove unwated values from the data (7 and 9 answer codes are implicit NAs, for example) 
+5. trim off any remaining unwanted variables 
+
+
+```{r cleaning}
+# rename
 zinc_refactor <- zinc_trimmed %>%
   rename("cycle" = "SDDSRVYR",
          "sex" = "RIAGENDR",
@@ -71,6 +85,7 @@ zinc_refactor <- zinc_trimmed %>%
          "zinc_ug/dL" = LBXSZN,
          "session" = PHDSESN
   ) %>%
+# refator, compute, combine for various variables
   mutate(
          "work_noise" = if_else(!is.na(AUQ330), AUQ330, AUQ331),
          "ethnicity" = if_else(`ethnicity` == 3, 1, 2), # 1 = white, 2 is non white/Hispanic
@@ -101,6 +116,7 @@ zinc_refactor <- zinc_trimmed %>%
          "copper_deficiency" = if_else(`copper_ug/dL` < 63.7, 1, 0),
          "tinnitus_any" = if_else(tinnitus_any == 1, 1, 0)
   ) %>%
+# remove remaining unwanted variables
   select(-c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, subsample_weight, zinc_cutoff, session))
     
 ```
