@@ -17,6 +17,7 @@ library(ggplot2)
 
 
 ```{r import}
+# grabbing our finalized data sheet from generated from our processing script earlier
 df <- read.csv("../Data/processed_metal_data.csv")
 ```
 
@@ -25,15 +26,15 @@ tinnitus_design <- svydesign(data = df, id = ~psu, strata = ~stratum, weights = 
 ```
 
 ```{r chisq}
-sextest <- chisq.test(df$sex, df$tinnitus_any)
+sextest <- chisq.test(df$sex, df$tinnitus_type)
 sextest$observed
 sextest
 
-agetest <- chisq.test(df$age_group, df$tinnitus_any)
+agetest <- chisq.test(df$age_group, df$tinnitus_type)
 agetest$observed
 agetest
 
-ethtest <- chisq.test(df$ethnicity, df$tinnitus_any)
+ethtest <- chisq.test(df$ethnicity, df$tinnitus_type)
 ethtest$observed
 ethtest
 ```

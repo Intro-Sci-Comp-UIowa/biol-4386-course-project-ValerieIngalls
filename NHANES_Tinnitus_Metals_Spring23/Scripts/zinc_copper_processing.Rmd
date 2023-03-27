@@ -87,28 +87,30 @@ zinc_refactor <- zinc_trimmed %>%
   ) %>%
 # refator, compute, combine for various variables
   mutate(
-         "work_noise" = if_else(!is.na(AUQ330), AUQ330, AUQ331),
+         "work_noise" = if_else(!is.na(AUQ330), AUQ330, AUQ331), # different question name between cycles, just a combine + rename here
          "ethnicity" = if_else(`ethnicity` == 3, 1, 2), # 1 = white, 2 is non white/Hispanic
-         "age_group" = if_else(age_yrs < 30, 1, 
-                               if_else(age_yrs < 40, 2, 
+         "age_group" = if_else(age_yrs < 30, 1, # youngest individuals with audio data are 20
+                               if_else(age_yrs < 40, 2, # so age ranges are 20-29, 30-39, etc
                                        if_else(age_yrs < 50, 3, 
-                                               if_else(age_yrs < 60, 4, 5)))),
-         across(c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU500L,
+                                               if_else(age_yrs < 60, 4, 5)))), # upper limit was 69
+         across(c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU500L, # removing null hearing thresholds
                    AUXU1K1L, AUXU2KL, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL), ~na_if(., 888)),
          across(c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU500L,
-                   AUXU1K1L, AUXU2KL, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL), ~if_else(. == 666, 110, .)),
-         "mid_pta_right" = (AUXU500R + AUXU1K1R + AUXU2KR) / 3,
+                   AUXU1K1L, AUXU2KL, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL), ~if_else(. == 666, 110, .)), # thresholds above measured values are being set to 110 (highest attempted measure)
+         "mid_pta_right" = (AUXU500R + AUXU1K1R + AUXU2KR) / 3, # standard Pure Tone Average calc
          "mid_pta_left" = (AUXU500L + AUXU1K1L + AUXU2KL) / 3,
-         "high_pta_right" = (AUXU3KR + AUXU4KR + AUXU6KR + AUXU8KR) / 4,
+         "high_pta_right" = (AUXU3KR + AUXU4KR + AUXU6KR + AUXU8KR) / 4, # same but for higher freq
          "high_pta_left" = (AUXU3KL + AUXU4KL + AUXU6KL + AUXU8KL) / 4,
-         "combined_subsample_weight" = subsample_weight/2,
-         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 7)),
+         "combined_subsample_weight" = subsample_weight/2, # proper method for weight when using multiple cycles. Take weight, divide by number of cycles
+         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 7)), # na coded null values
          across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 9)),
-         "problematic" = if_else(tinnitus_severity == 1, 0, 1),
-         "acute_chronic" = if_else(tinnitus_duration >= 3, 1, 0),
-         "tinnitus_type" = 
-         "cycle" = if_else(cycle == 7, "2011", "2015"),
-         "zinc_cutoff" = if_else(age_yrs >= 10, 
+         "problematic" = if_else(tinnitus_severity == 1, 0, 1), # tinnitus that is at least a small problem vs not
+         "acute_chronic" = if_else(tinnitus_duration >= 3, 1, 0), # tinnitus lasting at least a year vs not
+         "tinnitus_type" = if_else(tinnitus_duration == 1 & tinnitus_severity == 1, 1, 
+                                   if_else(!is.na(tinnitus_duration) | !is.na(tinnitus_severity), 2, 3)),
+# 1: bothersome chronic, 2: not bothersome or not chronic, 3: no tinnitus
+         "cycle" = if_else(cycle == 7, "2011-2012", "2015-2016"), # changing cycle code to a year for clarity
+         "zinc_cutoff" = if_else(age_yrs >= 10, # using standards to control zinc deficiency cutoff based on known factors. no such info found on copper, so that cutoff is less controlled
                                      if_else(sex == 1, if_else(session == 1, 74, 61), 
                                      if_else(session == 1, 70, 59)),
                                      if_else(session == 1, 65, 57)),
@@ -124,8 +126,8 @@ zinc_refactor <- zinc_trimmed %>%
 
 ```{r subset}
 # file without NA's for easier use with SPSS; no purpose here
-zinc_SPSS <- zinc_refactor %>%
-    replace(is.na(.), "")
+#zinc_SPSS <- zinc_refactor %>%
+#    replace(is.na(.), "")
 
 
 # removing rows with incomplete data; partially for cleanliness, partially for better functioning with later analyses
@@ -137,6 +139,7 @@ zinc_subset <- zinc_refactor %>%
 ```
 
 ```{r write}
+# final output csv that we're going to read into our analysis rmd
 write.csv(zinc_subset, file = "../Data/processed_metal_data.csv")
 ```
 
