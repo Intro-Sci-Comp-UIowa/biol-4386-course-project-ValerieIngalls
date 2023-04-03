@@ -106,9 +106,11 @@ zinc_refactor <- zinc_trimmed %>%
          across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 9)),
          "problematic" = if_else(tinnitus_severity == 1, 0, 1), # tinnitus that is at least a small problem vs not
          "acute_chronic" = if_else(tinnitus_duration >= 3, 1, 0), # tinnitus lasting at least a year vs not
-         "tinnitus_type" = if_else(tinnitus_duration == 1 & tinnitus_severity == 1, 1, 
-                                   if_else(!is.na(tinnitus_duration) | !is.na(tinnitus_severity), 2, 3)),
-# 1: bothersome chronic, 2: not bothersome or not chronic, 3: no tinnitus
+         "tinnitus_type" = if_else(tinnitus_any == 2, 3, 1),
+         "tinnitus_type" = if_else(!is.na(problematic) & problematic == 0, 2, 
+                                   if_else(!is.na(acute_chronic) & acute_chronic == 0, 2,
+                                           if_else(!is.na(noise_only) & noise_only == 1, 2, tinnitus_type))),
+# 1: bothersome chronic, 2: not bothersome or not chronic or noise-exposure only, 3: no tinnitus
          "cycle" = if_else(cycle == 7, "2011-2012", "2015-2016"), # changing cycle code to a year for clarity
          "zinc_cutoff" = if_else(age_yrs >= 10, # using standards to control zinc deficiency cutoff based on known factors. no such info found on copper, so that cutoff is less controlled
                                      if_else(sex == 1, if_else(session == 1, 74, 61), 
@@ -142,4 +144,3 @@ zinc_subset <- zinc_refactor %>%
 # final output csv that we're going to read into our analysis rmd
 write.csv(zinc_subset, file = "../Data/processed_metal_data.csv")
 ```
-
