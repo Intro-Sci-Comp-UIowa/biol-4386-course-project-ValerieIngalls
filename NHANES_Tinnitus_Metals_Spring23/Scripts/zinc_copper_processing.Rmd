@@ -121,7 +121,7 @@ zinc_refactor <- zinc_trimmed %>%
          "tinnitus_any" = if_else(tinnitus_any == 1, 1, 0)
   ) %>%
 # remove remaining unwanted variables
-  select(-c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, subsample_weight, zinc_cutoff, session))
+  select(-c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, subsample_weight, zinc_cutoff, session, problematic, acute_chronic, noise_only))
     
 ```
 
@@ -137,7 +137,8 @@ zinc_subset <- zinc_refactor %>%
   filter(!is.na(`zinc_ug/dL`)) %>%
   filter(!is.na(`copper_ug/dL`)) %>%
   filter(!is.na(tinnitus_any)) %>%
-  filter(!is.na(speech_in_noise))
+  filter(!is.na(speech_in_noise)) %>%
+  filter(!is.na(tinnitus_type))
 ```
 
 ```{r write}

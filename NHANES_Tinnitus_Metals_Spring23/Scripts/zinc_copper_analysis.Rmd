@@ -8,10 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 library(foreign)
 library(survey)
-library(dplyr)
+library(tidyverse)
 library(stringr)
-library(tidyr)
-library(bestNormalize)
 library(ggplot2)
 ```
 
