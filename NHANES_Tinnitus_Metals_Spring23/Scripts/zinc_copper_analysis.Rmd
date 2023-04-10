@@ -19,9 +19,87 @@ library(ggplot2)
 df <- read.csv("../Data/processed_metal_data.csv")
 ```
 
-```{r designs}
+
+```{r factorize}
+# setting a var to factor and removing the csv artifact column
+df$tinnitus_type <- as.factor(df$tinnitus_type)
+df <- select(df, -X)
+```
+
+
+```{r design}
 tinnitus_design <- svydesign(data = df, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE)
 ```
+
+
+```{r, include=FALSE}
+# proof of concept
+#ggplot() +
+#  geom_histogram(data = df[df$tinnitus_type == 1,], mapping = aes(x = zinc)) +
+#  geom_histogram(data = df[df$tinnitus_type == 2,], mapping = aes(x = zinc)) +
+#  geom_histogram(data = df[df$tinnitus_type == 3,], mapping = aes(x = zinc))
+```
+
+```{r}
+lmzn <- svyglm(zinc ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
+summary(lmzn)
+
+lmcu <- svyglm(copper ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
+summary(lmcu)
+```
+
+
+
+
+
+
+```{r}
+par(mfrow = c(1, 2))
+svyhist(~zinc, design = tinnitus_design, breaks = 30)
+hist(df$zinc, freq = FALSE, breaks = 30)
+
+par(mfrow = c(1, 2))
+svyhist(~copper, design = tinnitus_design, breaks = 30)
+hist(df$copper, freq = FALSE, breaks = 30)
+
+weight <- df$combined_subsample_weight
+
+ct <- filter(df, tinnitus_type == 1)
+at <- filter(df, tinnitus_type == 2)
+nt <- filter(df, tinnitus_type == 3)
+
+ctweight <- ct$combined_subsample_weight
+atweight <- at$combined_subsample_weight
+ntweight <- nt$combined_subsample_weight
+
+ggplot() +
+  geom_histogram(data = ct, mapping = aes(x = zinc, weight = ctweight), stat = "density", color = 2, alpha = .7) +
+  geom_histogram(data = at, mapping = aes(x = zinc, weight = atweight), stat = "density", color = 3, alpha = .7) +
+  geom_histogram(data = nt, mapping = aes(x = zinc, weight = ntweight), stat = "density", color = 4, alpha = .7)
+
+ggplot() +
+  geom_histogram(data = ct, mapping = aes(x = copper, weight = ctweight), stat = "density", color = 2, alpha = .7) +
+  geom_histogram(data = at, mapping = aes(x = copper, weight = atweight), stat = "density", color = 3, alpha = .7) +
+  geom_histogram(data = nt, mapping = aes(x = copper, weight = ntweight), stat = "density", color = 4, alpha = .7)
+
+```
+
+
+
+
+
+
+
+
+```{r}
+mypreds <- predict(lm1, newdata = df, type = "response")
+mypreds
+ggplot(data = df) +
+  geom_histogram(aes(x = mypreds))
+```
+
+
+
 
 ```{r chisq}
 sextest <- chisq.test(df$sex, df$tinnitus_type)

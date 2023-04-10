@@ -81,11 +81,11 @@ zinc_refactor <- zinc_trimmed %>%
          "speech_in_noise" = AUQ100,
          "non_work_noise" = AUQ370,
          "firearms" = AUQ300,
-         "copper_ug/dL" = LBXSCU,
-         "zinc_ug/dL" = LBXSZN,
+         "copper" = LBXSCU,
+         "zinc" = LBXSZN,
          "session" = PHDSESN
   ) %>%
-# refator, compute, combine for various variables
+# refactor, compute, combine for various variables
   mutate(
          "work_noise" = if_else(!is.na(AUQ330), AUQ330, AUQ331), # different question name between cycles, just a combine + rename here
          "ethnicity" = if_else(`ethnicity` == 3, 1, 2), # 1 = white, 2 is non white/Hispanic
@@ -116,8 +116,8 @@ zinc_refactor <- zinc_trimmed %>%
                                      if_else(sex == 1, if_else(session == 1, 74, 61), 
                                      if_else(session == 1, 70, 59)),
                                      if_else(session == 1, 65, 57)),
-         "zinc_deficiency" = if_else(`zinc_ug/dL` < zinc_cutoff, 1, 0), # 0 is no deficiency
-         "copper_deficiency" = if_else(`copper_ug/dL` < 63.7, 1, 0),
+         "zinc_deficiency" = if_else(`zinc` < zinc_cutoff, 1, 0), # 0 is no deficiency
+         "copper_deficiency" = if_else(`copper` < 63.7, 1, 0),
          "tinnitus_any" = if_else(tinnitus_any == 1, 1, 0)
   ) %>%
 # remove remaining unwanted variables
@@ -134,8 +134,8 @@ zinc_refactor <- zinc_trimmed %>%
 
 # removing rows with incomplete data; partially for cleanliness, partially for better functioning with later analyses
 zinc_subset <- zinc_refactor %>%
-  filter(!is.na(`zinc_ug/dL`)) %>%
-  filter(!is.na(`copper_ug/dL`)) %>%
+  filter(!is.na(zinc)) %>%
+  filter(!is.na(copper)) %>%
   filter(!is.na(tinnitus_any)) %>%
   filter(!is.na(speech_in_noise)) %>%
   filter(!is.na(tinnitus_type))
