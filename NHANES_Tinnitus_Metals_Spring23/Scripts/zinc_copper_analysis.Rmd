@@ -32,14 +32,6 @@ tinnitus_design <- svydesign(data = df, id = ~psu, strata = ~stratum, weights = 
 ```
 
 
-```{r, include=FALSE}
-# proof of concept
-#ggplot() +
-#  geom_histogram(data = df[df$tinnitus_type == 1,], mapping = aes(x = zinc)) +
-#  geom_histogram(data = df[df$tinnitus_type == 2,], mapping = aes(x = zinc)) +
-#  geom_histogram(data = df[df$tinnitus_type == 3,], mapping = aes(x = zinc))
-```
-
 ```{r}
 lmzn <- svyglm(zinc ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
 summary(lmzn)
@@ -50,18 +42,7 @@ summary(lmcu)
 
 
 
-
-
-
-```{r}
-par(mfrow = c(1, 2))
-svyhist(~zinc, design = tinnitus_design, breaks = 30)
-hist(df$zinc, freq = FALSE, breaks = 30)
-
-par(mfrow = c(1, 2))
-svyhist(~copper, design = tinnitus_design, breaks = 30)
-hist(df$copper, freq = FALSE, breaks = 30)
-
+```{r histograms}
 weight <- df$combined_subsample_weight
 
 ct <- filter(df, tinnitus_type == 1)
@@ -72,15 +53,22 @@ ctweight <- ct$combined_subsample_weight
 atweight <- at$combined_subsample_weight
 ntweight <- nt$combined_subsample_weight
 
-ggplot() +
-  geom_histogram(data = ct, mapping = aes(x = zinc, weight = ctweight), stat = "density", color = 2, alpha = .7) +
-  geom_histogram(data = at, mapping = aes(x = zinc, weight = atweight), stat = "density", color = 3, alpha = .7) +
-  geom_histogram(data = nt, mapping = aes(x = zinc, weight = ntweight), stat = "density", color = 4, alpha = .7)
 
-ggplot() +
-  geom_histogram(data = ct, mapping = aes(x = copper, weight = ctweight), stat = "density", color = 2, alpha = .7) +
-  geom_histogram(data = at, mapping = aes(x = copper, weight = atweight), stat = "density", color = 3, alpha = .7) +
-  geom_histogram(data = nt, mapping = aes(x = copper, weight = ntweight), stat = "density", color = 4, alpha = .7)
+ggplot(data = df) +
+  geom_density(mapping = aes(x = zinc, weight = weight, fill = tinnitus_type), alpha = .5) +
+  geom_vline(xintercept = 61, color = "blue", linetype = 2) +
+  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
+  labs(x = "Serum Zinc Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Zinc Levels by Tinnitus Type", fill = "Tinnitus Type")
+ggsave("../Output/Figures/Prelim_Zinc_Figure.png")
+
+
+ggplot(data = df) +
+  geom_density(mapping = aes(x = copper, weight = weight, fill = tinnitus_type), alpha = .5) +
+  geom_vline(xintercept = 63.7, color = "red", linetype = 2) +
+  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
+  labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
+ggsave("../Output/Figures/Prelim_Copper_Figure.png")
+
 
 ```
 
