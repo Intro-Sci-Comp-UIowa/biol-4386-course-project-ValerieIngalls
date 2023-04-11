@@ -69,38 +69,25 @@ ggplot(data = df) +
   labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
 ggsave("../Output/Figures/Prelim_Copper_Figure.png")
 
-
-```
-
-
-
-
-
-
-
-
-```{r}
-mypreds <- predict(lm1, newdata = df, type = "response")
-mypreds
-ggplot(data = df) +
-  geom_histogram(aes(x = mypreds))
 ```
 
 
 
 
 ```{r chisq}
-sextest <- chisq.test(df$sex, df$tinnitus_type)
-sextest$observed
-sextest
+weighted_sextest <- svychisq(~tinnitus_type + sex, design = tinnitus_design)
+weighted_sextest$observed
+weighted_sextest
 
-agetest <- chisq.test(df$age_group, df$tinnitus_type)
-agetest$observed
-agetest
 
-ethtest <- chisq.test(df$ethnicity, df$tinnitus_type)
-ethtest$observed
-ethtest
+weighted_agetest <- svychisq(~tinnitus_type + age_group, design = tinnitus_design)
+weighted_agetest$observed
+weighted_agetest
+
+
+weighted_ethtest <- svychisq(~tinnitus_type + ethnicity, design = tinnitus_design)
+weighted_ethtest$observed
+weighted_ethtest
 ```
 
 
@@ -153,15 +140,6 @@ summary(multilin3)
 ```
 
 
-```{r histograms}
-subset(tinnitus_design, tinnitus_any == 0) %>%
-  svyhist(formula = ~`zinc_ug/dL`, design = ., breaks = 300)
-
-subset(tinnitus_design, tinnitus_any == 1) %>%
-  svyhist(formula = ~`zinc_ug/dL`, design = ., breaks = 300)
-```
-
-
 ```{r mean-comparison}
 subset(tinnitus_design, tinnitus_any == 0) %>%
   svymean(~zinc_deficiency, .)
@@ -178,14 +156,7 @@ subset(tinnitus_design, tinnitus_any == 1) %>%
 ```
 
 
-```{r}
-deficient_tbl <- tibble("tinnitus" = c(9.807, 0.621, 0.145), "no tinnitus" = c(15.664, 0.604, 0.374))
-
-ggplot(data = deficient_tbl, mapping = aes(x =  ))
-```
-
-
-```{r}
+```{r normalization attempts}
 zincresid <- rstandard(multilin2)
 shapiro.test(zincresid)
 
@@ -247,8 +218,4 @@ norm_cu_resid <- rstandard(cu_lin_no_outlier)
 shapiro.test(norm_cu_resid)
 hist(norm_cu_resid, breaks = 100)
 
-```
-
-```{r}
-svyhist(~`zinc_ug/dL`, design = tinnitus_design, breaks = 50)
 ```
