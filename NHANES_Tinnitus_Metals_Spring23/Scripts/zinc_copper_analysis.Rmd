@@ -92,6 +92,8 @@ weighted_ethtest
 
 
 ```{r regression}
+
+#note: much of this code is outdated and will be updated or replaced
 svyttest(zinc_deficiency~tinnitus_any, design = tinnitus_design)
 
 #tinnitus_design %>%
