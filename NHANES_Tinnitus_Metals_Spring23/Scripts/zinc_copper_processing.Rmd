@@ -8,11 +8,11 @@ output: html_document
 ```{r setup, include=FALSE}
 library(foreign)
 library(survey)
-library(dplyr)
+library(tidyverse)
 library(stringr)
-library(tidyr)
 library(bestNormalize)
 library(ggplot2)
+library(moments)
 ```
 
 First, we have to read all of our data files into R. There are 5 different files for each cycle.
@@ -126,6 +126,8 @@ zinc_refactor <- zinc_trimmed %>%
 ```
 
 
+
+
 ```{r subset}
 # file without NA's for easier use with SPSS; no purpose here
 #zinc_SPSS <- zinc_refactor %>%
@@ -141,7 +143,38 @@ zinc_subset <- zinc_refactor %>%
   filter(!is.na(tinnitus_type))
 ```
 
+
+In preliminary analyses, it was noted that there is skew in the values of serum copper and zinc. Therefore, we will perform a transformation on the data to attempt to create more normal distribution.
+```{r normalization}
+
+zinc_norm_result <- bestNormalize(zinc_subset$zinc)
+normed_zinc <- zinc_norm_result$x.t
+
+
+copper_norm_result <- bestNormalize(zinc_subset$copper)
+normed_copper <- copper_norm_result$x.t
+
+
+skewness(zinc_subset$zinc)
+zinc_norm_result
+
+
+skewness(zinc_subset$copper)
+copper_norm_result
+```
+
+Attempts to normalize the distribution of zinc seem to have made it more skewed rather than less skewed; therefore we will continue with the original measure. However, the Box-Cox normalizing transformation shows less skewness in our measurements of copper, so we will move forward with that transformation.
+
+
+```{r appendNorm}
+zinc_final <- zinc_subset %>%
+  mutate("normedCopper" = normed_copper)
+```
+
+
+
+
 ```{r write}
 # final output csv that we're going to read into our analysis rmd
-write.csv(zinc_subset, file = "../Data/processed_metal_data.csv")
+write.csv(zinc_final, file = "../Data/processed_metal_data.csv")
 ```
