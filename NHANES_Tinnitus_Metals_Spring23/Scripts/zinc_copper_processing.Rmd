@@ -155,14 +155,14 @@ copper_norm_result <- bestNormalize(zinc_subset$copper)
 normed_copper <- copper_norm_result$x.t
 
 
+
 skewness(zinc_subset$zinc)
 skewness(normed_zinc)
-zinc_norm_result
 
 
 skewness(zinc_subset$copper)
 skewness(normed_copper)
-copper_norm_result
+
 ```
 
 In both cases we can see that these methods have reduced the skewness of the distribution, so we will attempt analyses using the normalized zinc and copper distributions.
