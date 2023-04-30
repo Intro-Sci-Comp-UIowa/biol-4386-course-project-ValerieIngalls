@@ -11,6 +11,7 @@ library(survey)
 library(tidyverse)
 library(stringr)
 library(ggplot2)
+library(nnet)
 ```
 
 
@@ -27,29 +28,39 @@ df <- select(df, -X)
 ```
 
 
+We next establish our design variable, which is part of the `survey` package. This will allow us to include the elements of the complex survey design in our statistical analyses for better generalization to the population level.
 ```{r design}
 tinnitus_design <- svydesign(data = df, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE)
 ```
 
 
-```{r}
-lmzn <- svyglm(zinc ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
+Multiple linear regression models here. Running separate models with zinc and copper as outcome variables and using transformed  values. 
+```{r multiple_lin_reg}
+lmzn <- svyglm(normedZinc ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
 summary(lmzn)
 
-lmcu <- svyglm(copper ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
+
+lmcu <- svyglm(normedCopper ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
 summary(lmcu)
-
-lmzn_normed <- svyglm(normedZinc ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
-summary(lmzn_normed)
-
-
-lmcu_normed <- svyglm(normedCopper ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
-summary(lmcu_normed)
 
 ```
 
+We will also perform multinomial logistic regression in order to see our tinnitus variable as an outcome rather than a predictor
+```{r multinomial_logit_reg}
+#We define the regression model using the weights from the survey design
+logitzn <- multinom(tinnitus_type ~ normedZinc + age_group + ethnicity + sex + speech_in_noise, data = df, weights = tinnitus_design$prob.weights)
 
-Normalized data shows no differences in associations as compared to the directly measured zinc and copper values. We will still use it as the lower skew adds validity to our statistical measures.
+summary(logitzn)
+
+
+
+logitcu <- multinom(tinnitus_type ~ normedCopper + age_group + ethnicity + sex + speech_in_noise, data = df, weights = tinnitus_design$prob.weights)
+
+summary(logitcu)
+
+
+```
+
 
 
 
@@ -119,136 +130,4 @@ weighted_agetest
 weighted_ethtest <- svychisq(~tinnitus_type + ethnicity, design = tinnitus_design)
 weighted_ethtest$observed
 weighted_ethtest
-```
-
-
-```{r regression}
-
-#note: much of this code is outdated and will be updated or replaced
-svyttest(zinc_deficiency~tinnitus_any, design = tinnitus_design)
-
-#tinnitus_design %>%
-#  subset(tinnitus_any == 1) %>%
-#  svymean(~`zinc_ug/dL`, .)
-#tinnitus_design %>%
-#  subset(tinnitus_any != 1) %>%
-#  svymean(~`zinc_ug/dL`, .)
-#tinnitus_design %>%
-#  subset(tinnitus_any == 1) %>%
-#  svymean(~zinc_deficiency, .)
-#tinnitus_design %>%
-#  subset(tinnitus_any != 1) %>%
-#  svymean(~zinc_deficiency, .)
-
-
-logit1 <- svyglm(formula = zinc_deficiency ~ tinnitus_any + sex + ethnicity + speech_in_noise + non_work_noise + firearms + work_noise + age_group, family = quasibinomial, design = tinnitus_design, na.action = na.omit)
-
-logit2 <- svyglm(formula = zinc_deficiency ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, family = quasibinomial, design = tinnitus_design, na.action = na.omit)
-
-summary(logit1, correlation = TRUE)
-anova(logit1)
-
-summary(logit2, correlation = TRUE)
-
-exp(cbind(OR = coef(logit2), confint.default(logit2)))
-
-logit3 <- svyglm(formula = copper_deficiency ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, family = quasibinomial, design = tinnitus_design, na.action = na.omit)
-
-summary(logit3)
-exp(cbind(OR = coef(logit3), confint.default(logit3)))
-
-
-
-#svyttest(`zinc_ug/dL`~tinnitus_any, design = tinnitus_design, alternative = "two.sided", paired = TRUE, conf.level = .95)
-
-multilin2 <- svyglm(formula = `zinc_ug/dL` ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, design = tinnitus_design, na.action = na.omit)
-
-summary(multilin2, correlation = TRUE)
-
-multilin3 <- svyglm(formula = `copper_ug/dL` ~ tinnitus_any + sex + ethnicity + age_group + speech_in_noise, design = tinnitus_design, na.action = na.omit)
-
-summary(multilin3)
-
-
-```
-
-
-```{r mean-comparison}
-subset(tinnitus_design, tinnitus_any == 0) %>%
-  svymean(~zinc_deficiency, .)
-
-subset(tinnitus_design, tinnitus_any == 1) %>%
-  svymean(~zinc_deficiency, .)
-
-subset(tinnitus_design, tinnitus_any == 0) %>%
-  svymean(~copper_deficiency, .)
-
-subset(tinnitus_design, tinnitus_any == 1) %>%
-  svymean(~copper_deficiency, .)
-
-```
-
-
-```{r normalization attempts}
-zincresid <- rstandard(multilin2)
-shapiro.test(zincresid)
-
-hist(zincresid, breaks = 100)
-hist(zinc_norm$chosen_transform$x.t, breaks = 100)
-
-zinc_norm <-bestNormalize(zinc_refactor$`zinc_ug/dL`)
-
-zinc_chosen <- zinc_norm$chosen_transform$x.t
-
-zinc_norm_df <- zinc_refactor %>%
-  mutate(
-    "zinc_norm" = `zinc_chosen`
-  )
-
-zinc_norm_subset_df <- zinc_norm_df %>%
-  filter(!is.na(zinc_norm))
-
-
-
-copper_norm <-bestNormalize(zinc_refactor$`copper_ug/dL`)
-
-copper_chosen <- copper_norm$chosen_transform$x.t
-
-copper_norm_df <- zinc_refactor %>%
-  mutate(
-    "copper_norm" = `copper_chosen`
-  )
-
-copper_norm_subset_df <- copper_norm_df %>%
-  filter(!is.na(copper_norm))
-
-
-norm_data <- full_join(zinc_norm_subset_df, copper_norm_subset_df)
-
-normed_design <- svydesign(data = norm_data, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE) %>%
-  subset(!is.na(tinnitus_any))
-
-
-normed_lin_zinc <- svyglm(formula = zinc_norm ~ tinnitus_any + sex + ethnicity + age_yrs, design = normed_design, na.action = na.omit)
-
-normed_lin_cu <- svyglm(formula = copper_norm ~ tinnitus_any + sex + ethnicity + age_yrs, design = normed_design, na.action = na.omit)
-
-summary(normed_lin_zinc)
-summary(normed_lin_cu)
-
-
-norm_zinc_resid <- rstandard(normed_lin_zinc)
-shapiro.test(norm_zinc_resid)
-hist(norm_zinc_resid, breaks = 100)
-
-
-cu_no_outlier <-  normed_design%>%
-  subset(copper_norm > -15)
-
-cu_lin_no_outlier <- svyglm(formula = copper_norm ~ tinnitus_any + sex + ethnicity + age_yrs, design = cu_no_outlier, na.action = na.omit)
-  
-norm_cu_resid <- rstandard(cu_lin_no_outlier)
-shapiro.test(norm_cu_resid)
-hist(norm_cu_resid, breaks = 100)
-
 ```
