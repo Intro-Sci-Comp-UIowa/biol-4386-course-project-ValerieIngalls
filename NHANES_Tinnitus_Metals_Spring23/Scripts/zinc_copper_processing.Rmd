@@ -79,49 +79,38 @@ zinc_refactor <- zinc_trimmed %>%
          "tinnitus_duration" = AUQ250,
          "noise_only" = AUQ260,
          "speech_in_noise" = AUQ100,
-         "non_work_noise" = AUQ370,
-         "firearms" = AUQ300,
          "copper" = LBXSCU,
          "zinc" = LBXSZN,
          "session" = PHDSESN
   ) %>%
 # refactor, compute, combine for various variables
   mutate(
-         "work_noise" = if_else(!is.na(AUQ330), AUQ330, AUQ331), # different question name between cycles, just a combine + rename here
-         "ethnicity" = if_else(`ethnicity` == 3, 1, 2), # 1 = white, 2 is non white/Hispanic
+         "ethnicity" = if_else(`ethnicity` == 3, 1, 2), # 1 = white, 2 is non white/Hispanic. Follows other tin. studies
          "age_group" = if_else(age_yrs < 30, 1, # youngest individuals with audio data are 20
-                               if_else(age_yrs < 40, 2, # so age ranges are 20-29, 30-39, etc
+                               if_else(age_yrs < 40, 2, # so age ranges are 20-29, 30-39, 40-49, 50-59, 60-69
                                        if_else(age_yrs < 50, 3, 
                                                if_else(age_yrs < 60, 4, 5)))), # upper limit was 69
-         across(c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU500L, # removing null hearing thresholds
-                   AUXU1K1L, AUXU2KL, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL), ~na_if(., 888)),
-         across(c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU500L,
-                   AUXU1K1L, AUXU2KL, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL), ~if_else(. == 666, 110, .)), # thresholds above measured values are being set to 110 (highest attempted measure)
-         "mid_pta_right" = (AUXU500R + AUXU1K1R + AUXU2KR) / 3, # standard Pure Tone Average calc
-         "mid_pta_left" = (AUXU500L + AUXU1K1L + AUXU2KL) / 3,
-         "high_pta_right" = (AUXU3KR + AUXU4KR + AUXU6KR + AUXU8KR) / 4, # same but for higher freq
-         "high_pta_left" = (AUXU3KL + AUXU4KL + AUXU6KL + AUXU8KL) / 4,
          "combined_subsample_weight" = subsample_weight/2, # proper method for weight when using multiple cycles. Take weight, divide by number of cycles
-         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 7)), # na coded null values
-         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, non_work_noise, firearms, work_noise, speech_in_noise),  ~na_if(., 9)),
-         "problematic" = if_else(tinnitus_severity == 1, 0, 1), # tinnitus that is at least a small problem vs not
+         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, speech_in_noise),  ~na_if(., 7)), # na coded null values
+         across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, speech_in_noise),  ~na_if(., 9)),
+         "problematic" = if_else(tinnitus_severity == 1, 0, 1), # no problem vs some problem
          "acute_chronic" = if_else(tinnitus_duration >= 3, 1, 0), # tinnitus lasting at least a year vs not
          "tinnitus_type" = if_else(tinnitus_any == 2, 3, 1),
          "tinnitus_type" = if_else(!is.na(problematic) & problematic == 0, 2, 
                                    if_else(!is.na(acute_chronic) & acute_chronic == 0, 2,
                                            if_else(!is.na(noise_only) & noise_only == 1, 2, tinnitus_type))),
-# 1: bothersome chronic, 2: not bothersome or not chronic or noise-exposure only, 3: no tinnitus
+# 1: bothersome chronic, 2: not bothersome or not chronic or noise-exposure only (other tinnitus), 3: no tinnitus
          "cycle" = if_else(cycle == 7, "2011-2012", "2015-2016"), # changing cycle code to a year for clarity
          "zinc_cutoff" = if_else(age_yrs >= 10, # using standards to control zinc deficiency cutoff based on known factors. no such info found on copper, so that cutoff is less controlled
                                      if_else(sex == 1, if_else(session == 1, 74, 61), 
                                      if_else(session == 1, 70, 59)),
                                      if_else(session == 1, 65, 57)),
          "zinc_deficiency" = if_else(`zinc` < zinc_cutoff, 1, 0), # 0 is no deficiency
-         "copper_deficiency" = if_else(`copper` < 63.7, 1, 0),
+         "copper_deficiency" = if_else(`copper` < 63.7, 1, 0), # 63.7 is the standard medical threshold.
          "tinnitus_any" = if_else(tinnitus_any == 1, 1, 0)
   ) %>%
 # remove remaining unwanted variables
-  select(-c(AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, subsample_weight, zinc_cutoff, session, problematic, acute_chronic, noise_only))
+  select(c(SEQN, cycle, sex, age_yrs, age_group, ethnicity, combined_subsample_weight, psu, stratum, tinnitus_any, tinnitus_type, zinc, copper, speech_in_noise, zinc_deficiency, copper_deficiency))
     
 ```
 
@@ -144,28 +133,45 @@ zinc_subset <- zinc_refactor %>%
 ```
 
 
-In preliminary analyses, it was noted that there is skew in the values of serum copper and zinc. Therefore, we will perform a transformation on the data to attempt to create more normal distribution.
-```{r normalization}
+In preliminary analyses, it was noted that there is skew in the values of serum copper and zinc. Therefore, we will transform these variables in order to try and normalize our response variables for statistical analyses.
+
+The bestNormalize() function runs a series of transformations and indicates the one with the least-skewed result. We will use this to determine the best transformation for our data.
+```{r normalizationZinc}
 
 zinc_norm_result <- bestNormalize(zinc_subset$zinc)
-normed_zinc <- zinc_norm_result$x.t
+zinc_norm_result
+#sqrt transform selected. we will perform this manually do avoid unwanted standardization.=
+
+normed_zinc <- sqrt(zinc_subset$zinc)
 
 
-copper_norm_result <- bestNormalize(zinc_subset$copper)
-normed_copper <- copper_norm_result$x.t
-
-
-
+#final check for improvement
 skewness(zinc_subset$zinc)
 skewness(normed_zinc)
 
 
+```
+```{r normalizationCopper}
+copper_norm_result <- bestNormalize(zinc_subset$copper)
+copper_norm_result
+#Yeo-Johnson transformation selected. Again will be performed manually to avoid standardization from the bestNormalize function
+# selected lambda value of -0.5191
+chosenLambda <- copper_norm_result$chosen_transform$lambda
+normed_copper <- (((zinc_subset$copper + 1)^chosenLambda - 1)/chosenLambda)
+
+
+#final check for improvement
 skewness(zinc_subset$copper)
 skewness(normed_copper)
-
 ```
 
-In both cases we can see that these methods have reduced the skewness of the distribution, so we will attempt analyses using the normalized zinc and copper distributions.
+
+
+
+
+
+
+In both cases we can see that these methods have reduced the skewness of the distribution, so we will attempt analyses using the transformed zinc and copper distributions. Appending the vectors of transformed values to our final data frame.
 
 ```{r appendNorm}
 zinc_final <- zinc_subset %>%
