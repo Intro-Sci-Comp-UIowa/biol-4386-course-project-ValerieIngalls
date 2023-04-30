@@ -38,24 +38,27 @@ summary(lmzn)
 
 lmcu <- svyglm(copper ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
 summary(lmcu)
+
+lmzn_normed <- svyglm(normedZinc ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
+summary(lmzn_normed)
+
+
+lmcu_normed <- svyglm(normedCopper ~ tinnitus_type + age_group + ethnicity + sex, design = tinnitus_design)
+summary(lmcu_normed)
+
 ```
+
+
+Normalized data shows no differences in associations as compared to the directly measured zinc and copper values. We will still use it as the lower skew adds validity to our statistical measures.
+
 
 
 
 ```{r histograms}
-weight <- df$combined_subsample_weight
-
-ct <- filter(df, tinnitus_type == 1)
-at <- filter(df, tinnitus_type == 2)
-nt <- filter(df, tinnitus_type == 3)
-
-ctweight <- ct$combined_subsample_weight
-atweight <- at$combined_subsample_weight
-ntweight <- nt$combined_subsample_weight
-
+# non-normalized density plots
 
 ggplot(data = df) +
-  geom_density(mapping = aes(x = zinc, weight = weight, fill = tinnitus_type), alpha = .5) +
+  geom_density(mapping = aes(x = zinc, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
   geom_vline(xintercept = 61, color = "blue", linetype = 2) +
   scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
   labs(x = "Serum Zinc Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Zinc Levels by Tinnitus Type", fill = "Tinnitus Type")
@@ -63,13 +66,41 @@ ggsave("../Output/Figures/Prelim_Zinc_Figure.png")
 
 
 ggplot(data = df) +
-  geom_density(mapping = aes(x = copper, weight = weight, fill = tinnitus_type), alpha = .5) +
+  geom_density(mapping = aes(x = copper, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
   geom_vline(xintercept = 63.7, color = "red", linetype = 2) +
   scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
   labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
 ggsave("../Output/Figures/Prelim_Copper_Figure.png")
 
 ```
+
+
+
+
+
+
+```{r}
+ggplot(data = df) +
+  geom_density(mapping = aes(x = normedZinc, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
+  #geom_vline(xintercept = 61, color = "blue", linetype = 2) +
+  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
+  labs(x = "Serum Zinc Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Zinc Levels by Tinnitus Type", fill = "Tinnitus Type")
+ggsave("../Output/Figures/Prelim_Zinc_Figure_Normed.png")
+
+
+ggplot(data = df) +
+  geom_density(mapping = aes(x = normedCopper, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
+#  geom_vline(xintercept = 63.7, color = "red", linetype = 2) +
+  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
+  labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
+#ggsave("../Output/Figures/Prelim_Copper_Figure.png")
+```
+
+
+
+
+
+
 
 
 
