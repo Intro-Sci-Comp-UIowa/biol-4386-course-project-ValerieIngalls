@@ -52,27 +52,21 @@ In the case where there are minimal differences between groups, we will also gen
 
 ## Materials and Methods 
 
-This is a large-sample epidemiological study using data from the National Health and Nutrition Examination Survery (NHANES). 
+This is an epidemiological study using data from the National Health and Nutrition Examination Survery (NHANES). 
 
 ### NHANES Data Collection 
-The NHANES is a nationally representation health survey that is unique in that it makes use of both questionnaires and physical examinations to gather a robust set of health 
-data. It began several decades ago with a series of multi-year surveys, the NHANES I, II, and III. The modern NHANES, known as the continuous NHANES, is a series of survey 
-cycles, each lasting for two years. Individual cycles are constructed to be fully representative of the United States population; researchers are still encouraged to combine 
-multiple cycles in order to increase the robustness of their dataset. The NHANES utilizes a complex stratified survey design in order to increase its representativeness. In 
-summary: 
-
-- Subpopulations of particular public health interest are identified (eg non-white Hispanic individuals)
-- The total population is broken up into strata based on location, often but not always by county
-- Strata are assigned a weight that increases their likelihood of being randomly selected for sampling based on the proportion of their population that includes the targeted 
-subpopulation(s). Some strata are weighted so heavily as to be guaranteed for selection
-- Weighted randomized selection of strata for the survey occurs
-- A random selection of individuals from within those strata are actually surveyed
-- Weights and strata information are then included in the NHANES data so that it is possible to accurately extrapolate results to the population level. All data are publicly 
-available on the NHANES website.
+The NHANES is a nationally representative health survey that is unique in that it makes use of both questionnaires and physical examinations to gather a robust set of health 
+data. It began several decades ago with a series of multi-year surveys, the NHANES I, II, and III. The modern NHANES, known as the Continuous NHANES, is composed of a series of survey 
+cycles, each lasting for two years. Individual cycles are constructed to be fully representative of the non-incarcerated United States population. Researchers are encouraged to combine 
+multiple cycles in order to increase the robustness of their dataset. The NHANES utilizes a complex stratified survey design in order to increase its representativeness. Subpopulations of particular public health interest 
+are first identified (eg. non-white Hispanic individuals). The full population is broken up into sampling strata based on location, often but not always by county. These strata are assigned a weight that increases their 
+likelihood of being randomly selected for sampling based on the proportion of their population that includes the targeted subpopulation(s). Some strata are weighted so heavily as to be guaranteed for selection. 
+Once these weights are assigned, weighted randomized selection of the strata occurs. Within each stratum, households and finally individuals are randomly selected. 
+Weights and strata information are then included in the NHANES data so that it is possible to accurately extrapolate results to the population level.
 
 ### Data Selection and Processing 
 Data from the NHANES are stored in .XPT format and are accessible via the website. In order to preserve metadata and avoid data corruption in the present study, we acquired 
-data via CLI using the wget command in a bash shell. Two cycles, 2011-2012 and 2015-2016 were selected for this study, as the only ones to have full audiological datasets 
+data via CLI using the wget command in a bash shell. Two cycles, 2011-2012 and 2015-2016 were selected for this study, as these cycles are only ones that have full audiological datasets 
 available alongside serum metal levels.
 
 NHANES stores data separately by cycle and by subject matter. In the case of this study, we used data from a total of ten different sheets, five from each cycle. The first 
