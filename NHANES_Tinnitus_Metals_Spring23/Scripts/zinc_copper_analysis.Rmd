@@ -24,6 +24,8 @@ df <- read.csv("../Data/processed_metal_data.csv")
 ```{r factorize}
 # setting a var to factor and removing the csv artifact column
 df$tinnitus_type <- as.factor(df$tinnitus_type)
+levels(df$tinnitus_type) <- c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")
+
 df <- select(df, -X)
 ```
 
@@ -33,89 +35,7 @@ We next establish our design variable, which is part of the `survey` package. Th
 tinnitus_design <- svydesign(data = df, id = ~psu, strata = ~stratum, weights = ~combined_subsample_weight, nest = TRUE)
 ```
 
-
-Multiple linear regression models here. Running separate models with zinc and copper as outcome variables and using transformed  values. 
-```{r multiple_lin_reg}
-lmzn <- svyglm(normedZinc ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
-summary(lmzn)
-
-
-lmcu <- svyglm(normedCopper ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
-summary(lmcu)
-
-```
-
-We will also perform multinomial logistic regression in order to see our tinnitus variable as an outcome rather than a predictor
-```{r multinomial_logit_reg}
-#We define the regression model using the weights from the survey design
-logitzn <- multinom(tinnitus_type ~ normedZinc + age_group + ethnicity + sex + speech_in_noise, data = df, weights = tinnitus_design$prob.weights)
-
-summary(logitzn)
-
-
-
-logitcu <- multinom(tinnitus_type ~ normedCopper + age_group + ethnicity + sex + speech_in_noise, data = df, weights = tinnitus_design$prob.weights)
-
-summary(logitcu)
-
-
-```
-
-
-
-
-
-```{r histograms}
-# non-normalized density plots
-
-ggplot(data = df) +
-  geom_density(mapping = aes(x = zinc, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
-  geom_vline(xintercept = 61, color = "blue", linetype = 2) +
-  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
-  labs(x = "Serum Zinc Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Zinc Levels by Tinnitus Type", fill = "Tinnitus Type")
-ggsave("../Output/Figures/Prelim_Zinc_Figure.png")
-
-
-ggplot(data = df) +
-  geom_density(mapping = aes(x = copper, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
-  geom_vline(xintercept = 63.7, color = "red", linetype = 2) +
-  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
-  labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
-ggsave("../Output/Figures/Prelim_Copper_Figure.png")
-
-```
-
-
-
-
-
-
-```{r}
-ggplot(data = df) +
-  geom_density(mapping = aes(x = normedZinc, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
-  #geom_vline(xintercept = 61, color = "blue", linetype = 2) +
-  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
-  labs(x = "Serum Zinc Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Zinc Levels by Tinnitus Type", fill = "Tinnitus Type")
-ggsave("../Output/Figures/Prelim_Zinc_Figure_Normed.png")
-
-
-ggplot(data = df) +
-  geom_density(mapping = aes(x = normedCopper, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
-#  geom_vline(xintercept = 63.7, color = "red", linetype = 2) +
-  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
-  labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
-#ggsave("../Output/Figures/Prelim_Copper_Figure.png")
-```
-
-
-
-
-
-
-
-
-
-
+First, chiSquare tests to look at the differences in demographic variables across our tinnitus groups.
 ```{r chisq}
 weighted_sextest <- svychisq(~tinnitus_type + sex, design = tinnitus_design)
 weighted_sextest$observed
@@ -130,4 +50,64 @@ weighted_agetest
 weighted_ethtest <- svychisq(~tinnitus_type + ethnicity, design = tinnitus_design)
 weighted_ethtest$observed
 weighted_ethtest
+```
+
+Multiple linear regression models here. Running separate models with zinc and copper as outcome variables and using transformed  values. 
+```{r multiple_lin_reg}
+lmzn <- svyglm(normedZinc ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
+summary(lmzn)
+
+
+lmcu <- svyglm(normedCopper ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
+summary(lmcu)
+
+```
+
+
+next is logistic regression to examine deficiency of each of the metals.
+```{r}
+zn_def_logit <- svyglm(zinc_deficiency ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design, family = "quasibinomial")
+summary(zn_def_logit)
+
+
+cu_def_logit <- svyglm(copper_deficiency ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design, family = "quasibinomial")
+summary(cu_def_logit)
+
+```
+
+
+While this is not going to be the most useful visualization due to the low difference between these groups, we will still begin with our original plan of visualizing the difference between metal levels in tinnitus groups via a nested density plot. Weights are incorporated into the plots to better account for survey design.
+```{r histograms}
+# non-normalized density plots
+
+ggplot(data = df) +
+  geom_density(mapping = aes(x = zinc, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
+  geom_vline(xintercept = 61, color = "blue", linetype = 2) +
+  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
+  labs(x = "Serum Zinc Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Zinc Levels by Tinnitus Type", fill = "Tinnitus Type")
+#ggsave("../Output/Figures/Final_Zinc_Density.png")
+
+
+ggplot(data = df) +
+  geom_density(mapping = aes(x = copper, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
+  geom_vline(xintercept = 63.7, color = "red", linetype = 2) +
+  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
+  labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
+#ggsave("../Output/Figures/Final_Copper_Density.png")
+
+```
+
+To show just how similar these distributions are, we're going to also create box plots. The `svyboxplot()` function from `survey` allows us to do this while fully implementing our sample design.
+```{r}
+# adjusts text spacing so it all fits
+par(mar = c(5, 5, 4, 2) + .1)
+
+svyboxplot(normedZinc~tinnitus_type, design = tinnitus_design, xlab = "Tinnitus Type", ylab = expression("Serum Zinc Level ( " * sqrt(mu *g/dL) * ")"), main = "Serum Zinc Levels by Tinnitus Type", all.outliers = TRUE, col = "#00beff", boxwex = .75)
+
+
+
+par(mar = c(5, 5, 4, 2) + .1, cex.lab = .78)
+
+svyboxplot(normedCopper~tinnitus_type, design = tinnitus_design, all.outliers = TRUE, xlab = "Tinnitus Type", ylab = expression("Serum Copper Level (Yeo-Johnson Transformed " * mu *"g/dL)"), main = "Serum Copper Levels by Tinnitus Type", col = "#00beff", boxwex = .75)
+
 ```

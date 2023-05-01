@@ -18,15 +18,18 @@ at least a moderate problem in their life, and over 1 million U.S. adults report
 the importance  of treatment for tinnitus is clear. Those with chronic, problematic tinnitus represent the population of greatest clinical interest. 
 
 
-While noise exposure is known to be the causal trigger for the manifestation of tinnitus, the exact biological origins of the disorder yet remain unclear. Moreover, it is not 
-yet fully clear why, when two individuals are exposed to the same loud noise, it is possible that only one of them develops tinnitus in response. One leading theory is that 
-tinnitus is connected to damage within the cochlea, the primary structure of the inner ear that is responsible for transduction of sound into the electrical signal that is 
-passed to the brain. Zinc and copper are known to prevent free radical damage in the cochlea over time by neutralizing the superoxide radical. It is theorized that these 
-molecules may have a protective effect against noise-induced cochlear damage, and therefore  tinnitus. It follows that their deficiency may result in tinnitus susceptibility. 
-Previous studies examining this hypothesis have showed some promising results, but have largely been underpowered and lacking statistical significance. Further, several 
-studies that attempted to use zinc for treating tinnitus neglected to examine pre-existing differences in zinc levels and rates of deficiency between individuals with and 
-without tinnitus. With this project, we hold the goal of completing a  large-scale analysis of differences in the levels of zinc and copper in individuals with and without 
-tinnitus, as well as the rates of deficiency, in order to determine whether there are population-level variations that could explain tinnitus susceptibility. 
+While noise exposure is known to be the primary causal trigger for the manifestation of tinnitus, the exact biological origins of the disorder yet remain unclear. One leading theory is that 
+tinnitus is connected to damage within the cochlea, the primary structure of the inner ear that is responsible for transduction of sound into an electrical signal before it passed to the brain. 
+Cochlear synaptopathy due to glutamanergic excitotoxicity is one known mechanism of cochlear damage that is triggered by noise exposure. Overstimulation at synapses within the cochlea has demonstrated to lead to large-scale loss of synapses in animal models, 
+and while the story appears to be more complicated in humans, it remains an avenue worth exploring further. Zinc and copper are elements able to neutralize the sueproxide radical, thereby preventing some amount of long-term cochlear damage. 
+It is theorized that these metals may have a protective effect against noise-induced cochlear damage, and therefore  tinnitus. It follows that their deficiency may result in susceptibility to the same. 
+This provides one potential explanation for individual differences in tinnitus susceptibility.  
+
+
+Previous studies examining this hypothesis have showed some small promise, but they have largely been underpowered and their results lacking in statistical significance. Further, several 
+previous studies that attempted to use zinc for treating tinnitus neglected to examine pre-existing differences in zinc levels and rates of deficiency between individuals with and 
+without tinnitus. Using epidemiological data, we can easily rectify the sample size issue. With this project, we aim to complete a large-scale epidemiological analysis of differences in the levels of zinc and copper in individuals with and without 
+tinnitus, as well as the rates of deficiency, in order to determine whether there are population-level variations that could explain tinnitus susceptibility.
 
 ### Example Figure
 
@@ -36,14 +39,16 @@ differences that I plan for my final version.
 
 ![An example histogram](Output/Figures/histo_example.png)
 
-As you can see from this example, the goal is to create a plot with multiple histogram distributions on the same axis. I will be making two figures with the same underlying 
-design, the only difference being whether the figure is for copper or zinc. Due to  differences in normative serum levels of copper and zinc, it is likely impractical to 
+The goal is to create a plot with multiple distributions on the same axis. I will be making two figures with the same underlying 
+design, the only difference being one figure will be copper and the other for zinc. Due to differences in normative serum levels of copper and zinc, it is impractical to 
 measure both metals on the same figure. On the x-axis for each figure will be level of serum copper (or zinc), while the y-axis will be density (preferable to a count y-axis 
-in  this case because our generalized sample size is in the millions). One of the distributions will be for the no tinnitus control group, one distribution will be for 
+in this case because our weighted sample size is in the millions). One of the distributions will be for the no tinnitus control group, one distribution will be for 
 individuals with chronic problematic tinnitus, while a third distribution will be for individuals  with other tinnitus phenotypes (either acute or unproblematic). I will also 
-add a vertical line at the clinical cutoff value for deficiency  in those metals. In this way, I will visualize the difference in zinc and/or copper in those with chronic 
+add a vertical line at the clinical cutoff value for deficiency in those metals. In this way, I will visualize the differences in zinc and/or copper in those with chronic 
 problematic tinnitus compared to the control groups of those with no tinnitus and those with clinically non-significant tinnitus, while simultaneously showing the proportion 
 of individuals in each population who have a deficiency in that metal. 
+
+In the case where there are minimal differences between groups, we will also generate box plots for each metal in order to easily visualize that similarity.
 
 ## Materials and Methods 
 
