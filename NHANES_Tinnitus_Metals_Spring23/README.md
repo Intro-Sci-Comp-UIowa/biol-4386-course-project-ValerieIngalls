@@ -171,7 +171,7 @@ For these plots, we opted to use the transformed values for zinc and copper that
 These figures clearly show that, with the exception of some outliers, the distributions of zinc and copper are practically identical across tinnitus groups. This agrees with our statistical analyses. 
 
 
-## Discussion and Conclusions
+## Discussion
 
 Our analyses show no evidence for a correlation between serum zinc or serum copper level and tinnitus phenotype. However, we did find a few interesting interesting correlations with deficiency. 
 Copper specifically showed a clear difference in rate of deficiency between types of tinnitus, although not between chronic tinnitus and no tinnitus. 
@@ -179,8 +179,21 @@ This perhaps suggests that copper deficiency does not play a role in if tinnitus
 Zinc deficiency showed correlation with speech-in-noise perceptual difficulties, but not tinnitus type. Notably, however, the direction of correlation indicates that those with SIN perceptual difficulties were the ones with lower deficiency rates. 
 This runs directly counter to our hypothesis regarding a potential protective effect of zinc on the cochlea. 
 
+As this is a cross-sectional epidemiological study, it is by nature impossible to establish causality between variables. This limits the scopes of our conclusions substantially. 
+However, our results do provide a strong baseline for a future experimental study. If copper deficiency is correlated with the severity or duration of tinnitus, then there is reason to consider testing copper supplement as a treatment option for tinnitus. 
+While our evidence does not suggest that robust copper levels can prevent tinnitus, treatment of symptoms is also a worthy path for further investigation. 
+
+Our hope is that by using a robust, generalizable sample and easily reproduced methods, we can provide reliable insight into the relationship between these elements and the tinnitus phenotype. 
+The NHANES is a powerful data set that is under-utilized in audiology research. We hope that by showing an example of the types of data available in the NHANES as well as sharing code that can be used to work with it, other researchers may be 
+encouraged to use this resource.
+
+
+## Conclusions
+
 Overall, it appears that serum levels of copper and zinc have little relationship with tinnitus prevalence in the US adult population. 
 Further study is warranted to examine the effects that copper may have on tinnitus presentation, with our findings indicating a potential modulation of severity or duration that can be achieved through avoiding deficiency. 
+Serum zinc does not appear to be associated with any sort of protective effect related to tinnitus or SIN perception. Therefore, we do not recommend any further investigation of zinc supplementation as a potential treatment or preventative measure for tinnitus,
+
 
 ## Reflection
 
