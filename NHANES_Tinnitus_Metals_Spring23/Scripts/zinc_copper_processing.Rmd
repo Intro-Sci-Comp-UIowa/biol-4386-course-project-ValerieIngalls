@@ -19,13 +19,11 @@ First, we have to read all of our data files into R. There are 5 different files
 demo11 <- read.xport("../Data/RAW_data/DEMO_G.XPT")
 auq11 <- read.xport("../Data/RAW_data/AUQ_G.XPT")
 zinc11 <- read.xport("../Data/RAW_data/CUSEZN_G.XPT")
-aux11 <- read.xport("../Data/RAW_data/AUX_G.XPT")
 fast11 <- read.xport("../Data/RAW_data/FASTQX_G.XPT")
 
 demo15 <- read.xport("../Data/RAW_data/DEMO_I.XPT")
 auq15 <- read.xport("../Data/RAW_data/AUQ_I.XPT")
 zinc15 <- read.xport("../Data/RAW_data/CUSEZN_I.XPT")
-aux15 <- read.xport("../Data/RAW_data/AUX_I.XPT")
 fast15 <- read.xport("../Data/RAW_data/FASTQX_I.XPT")
 ```
 
@@ -34,12 +32,10 @@ We're going to process this data all together, so we can combine our 10 datafram
 ```{r join}
 zinc_data15 <- full_join(demo15, auq15) %>%
   full_join(zinc15) %>%
-  full_join(aux15) %>%
   full_join(fast15)
 
 zinc_data11 <- full_join(demo11, auq11) %>%
   full_join(zinc11) %>%
-  full_join(aux11) %>%
   full_join(fast11)
 
 zinc_all <- full_join(zinc_data11, zinc_data15)
@@ -49,7 +45,7 @@ First step in wrangling is to select only the columns that we need for the ensui
 
 ```{r select}
 zinc_trimmed <- zinc_all %>%
-  select(c(SEQN, SDDSRVYR, RIAGENDR, RIDAGEYR, RIDRETH3, WTINT2YR, WTMEC2YR, SDMVPSU, SDMVSTRA, AUQ191, AUQ280, AUQ250, AUQ260, AUQ100, AUXU500R, AUXU1K1R, AUXU2KR, AUXU500L, AUXU1K1L, AUXU2KL, AUXU3KR, AUXU4KR, AUXU6KR, AUXU8KR, AUXU3KL, AUXU4KL, AUXU6KL, AUXU8KL, AUQ330, AUQ331, AUQ370, AUQ300, WTSA2YR, LBXSCU, LBXSZN, PHDSESN))
+  select(c(SEQN, SDDSRVYR, RIAGENDR, RIDAGEYR, RIDRETH3, WTINT2YR, WTMEC2YR, SDMVPSU, SDMVSTRA, AUQ191, AUQ280, AUQ250, AUQ260, AUQ100, AUQ330, AUQ331, AUQ370, AUQ300, WTSA2YR, LBXSCU, LBXSZN, PHDSESN))
 ```
 
 Here we 
