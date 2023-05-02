@@ -6,12 +6,9 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-library(foreign)
 library(survey)
 library(tidyverse)
-library(stringr)
 library(ggplot2)
-library(nnet)
 ```
 
 
@@ -42,11 +39,6 @@ weighted_sextest$observed
 weighted_sextest
 
 
-weighted_agetest <- svychisq(~tinnitus_type + age_group, design = tinnitus_design)
-weighted_agetest$observed
-weighted_agetest
-
-
 weighted_ethtest <- svychisq(~tinnitus_type + ethnicity, design = tinnitus_design)
 weighted_ethtest$observed
 weighted_ethtest
@@ -54,11 +46,11 @@ weighted_ethtest
 
 Multiple linear regression models here. Running separate models with zinc and copper as outcome variables and using transformed  values. 
 ```{r multiple_lin_reg}
-lmzn <- svyglm(normedZinc ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
+lmzn <- svyglm(normedZinc ~ tinnitus_type + age_yrs + ethnicity + sex + speech_in_noise, design = tinnitus_design)
 summary(lmzn)
 
 
-lmcu <- svyglm(normedCopper ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design)
+lmcu <- svyglm(normedCopper ~ tinnitus_type + age_yrs + ethnicity + sex + speech_in_noise, design = tinnitus_design)
 summary(lmcu)
 
 ```
@@ -66,11 +58,11 @@ summary(lmcu)
 
 next is logistic regression to examine deficiency of each of the metals.
 ```{r}
-zn_def_logit <- svyglm(zinc_deficiency ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design, family = "quasibinomial")
+zn_def_logit <- svyglm(zinc_deficiency ~ tinnitus_type + age_yrs + ethnicity + sex + speech_in_noise, design = tinnitus_design, family = "quasibinomial")
 summary(zn_def_logit)
 
 
-cu_def_logit <- svyglm(copper_deficiency ~ tinnitus_type + age_group + ethnicity + sex + speech_in_noise, design = tinnitus_design, family = "quasibinomial")
+cu_def_logit <- svyglm(copper_deficiency ~ tinnitus_type + age_yrs + ethnicity + sex + speech_in_noise, design = tinnitus_design, family = "quasibinomial")
 summary(cu_def_logit)
 
 ```
@@ -83,7 +75,6 @@ While this is not going to be the most useful visualization due to the low diffe
 ggplot(data = df) +
   geom_density(mapping = aes(x = zinc, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
   geom_vline(xintercept = 61, color = "blue", linetype = 2) +
-  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
   labs(x = "Serum Zinc Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Zinc Levels by Tinnitus Type", fill = "Tinnitus Type")
 #ggsave("../Output/Figures/Final_Zinc_Density.png")
 
@@ -91,7 +82,6 @@ ggplot(data = df) +
 ggplot(data = df) +
   geom_density(mapping = aes(x = copper, weight = combined_subsample_weight, fill = tinnitus_type), alpha = .5) +
   geom_vline(xintercept = 63.7, color = "red", linetype = 2) +
-  scale_fill_discrete(labels = c("Chronic Bothersome Tinnitus", "Other Tinnitus", "No Tinnitus")) +
   labs(x = "Serum Copper Level (\u03BCg/dL)", y = "Density", title = "Distribution of Serum Copper Levels by Tinnitus Type", fill = "Tinnitus Type")
 #ggsave("../Output/Figures/Final_Copper_Density.png")
 

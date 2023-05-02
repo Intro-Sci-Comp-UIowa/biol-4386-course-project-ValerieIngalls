@@ -7,12 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(foreign)
-library(survey)
 library(tidyverse)
-library(stringr)
 library(bestNormalize)
 library(ggplot2)
-library(moments)
+#install.packages("moments")
 ```
 
 First, we have to read all of our data files into R. There are 5 different files for each cycle.
@@ -86,10 +84,6 @@ zinc_refactor <- zinc_trimmed %>%
 # refactor, compute, combine for various variables
   mutate(
          "ethnicity" = if_else(`ethnicity` == 3, 1, 2), # 1 = white, 2 is non white/Hispanic. Follows other tin. studies
-         "age_group" = if_else(age_yrs < 30, 1, # youngest individuals with audio data are 20
-                               if_else(age_yrs < 40, 2, # so age ranges are 20-29, 30-39, 40-49, 50-59, 60-69
-                                       if_else(age_yrs < 50, 3, 
-                                               if_else(age_yrs < 60, 4, 5)))), # upper limit was 69
          "combined_subsample_weight" = subsample_weight/2, # proper method for weight when using multiple cycles. Take weight, divide by number of cycles
          across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, speech_in_noise),  ~na_if(., 7)), # na coded null values
          across(c(tinnitus_any, tinnitus_severity, tinnitus_duration, noise_only, sex, speech_in_noise),  ~na_if(., 9)),
@@ -110,7 +104,7 @@ zinc_refactor <- zinc_trimmed %>%
          "tinnitus_any" = if_else(tinnitus_any == 1, 1, 0)
   ) %>%
 # remove remaining unwanted variables
-  select(c(SEQN, cycle, sex, age_yrs, age_group, ethnicity, combined_subsample_weight, psu, stratum, tinnitus_any, tinnitus_type, zinc, copper, speech_in_noise, zinc_deficiency, copper_deficiency))
+  select(c(SEQN, cycle, sex, age_yrs, ethnicity, combined_subsample_weight, psu, stratum, tinnitus_any, tinnitus_type, zinc, copper, speech_in_noise, zinc_deficiency, copper_deficiency))
     
 ```
 
@@ -127,7 +121,6 @@ zinc_refactor <- zinc_trimmed %>%
 zinc_subset <- zinc_refactor %>%
   filter(!is.na(zinc)) %>%
   filter(!is.na(copper)) %>%
-  filter(!is.na(tinnitus_any)) %>%
   filter(!is.na(speech_in_noise)) %>%
   filter(!is.na(tinnitus_type))
 ```
@@ -146,8 +139,8 @@ normed_zinc <- sqrt(zinc_subset$zinc)
 
 
 #final check for improvement
-skewness(zinc_subset$zinc)
-skewness(normed_zinc)
+moments::skewness(zinc_subset$zinc)
+moments::skewness(normed_zinc)
 
 
 ```
@@ -161,17 +154,14 @@ normed_copper <- (((zinc_subset$copper + 1)^chosenLambda - 1)/chosenLambda)
 
 
 #final check for improvement
-skewness(zinc_subset$copper)
-skewness(normed_copper)
+moments::skewness(zinc_subset$copper)
+moments::skewness(normed_copper)
 ```
 
+Note that the methods used by the bestNormalize() function are not 100% consistent. Due to this, if multiple transformations result in extremely similar skewness values, one run of the function may favor one transformation, and the next run of it may favor a different one. As this is the case for our zinc measurement, we have elected to use the simplest transformation of those that the function alternately favors: square root.  
 
 
-
-
-
-
-In both cases we can see that these methods have reduced the skewness of the distribution, so we will attempt analyses using the transformed zinc and copper distributions. Appending the vectors of transformed values to our final data frame.
+In both cases of zinc and copper we can see that these methods have reduced the skewness of the distribution, so we will attempt analyses using the transformed zinc and copper distributions. Appending the vectors of transformed values to our final data frame.
 
 ```{r appendNorm}
 zinc_final <- zinc_subset %>%
